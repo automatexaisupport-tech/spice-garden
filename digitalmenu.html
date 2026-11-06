@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Menu</title>
+<meta name="theme-color" content="#1d3557">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="icon" id="favicon" href="data:,">
+<style>
+  :root {
+    --primary: #1d3557; --accent: #e63946;
+    --bg: #f5f6f8; --surface: #ffffff; --ink: #17202a; --muted: #66707c; --line: #e3e7ec;
+    --veg: #1e8e3e; --nonveg: #c62828; --radius: 14px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #0f1318; --surface: #181e26; --ink: #eef1f5; --muted: #9aa5b1; --line: #2a323d; }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; } }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+         font-family: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", sans-serif; line-height: 1.4; }
+  button { font: inherit; cursor: pointer; }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+  /* ---------- Hero ---------- */
+  .banner { height: 170px; background-size: cover; background-position: center; position: relative;
+            background-color: var(--primary); }
+  .banner.default {
+    background-image:
+      radial-gradient(circle at 20% 120%, color-mix(in srgb, var(--accent) 70%, transparent) 0 22%, transparent 23%),
+      radial-gradient(circle at 85% -10%, color-mix(in srgb, #fff 14%, transparent) 0 26%, transparent 27%),
+      linear-gradient(135deg, var(--primary), color-mix(in srgb, var(--primary) 70%, #000));
+  }
+  .tablepill { position: absolute; top: 14px; right: 14px; background: rgba(0,0,0,.55); color: #fff;
+               padding: 6px 12px; border-radius: 999px; font-size: .85rem; font-weight: 600; backdrop-filter: blur(6px); }
+  .brand { max-width: 760px; margin: -44px auto 0; padding: 0 16px; display: flex; gap: 14px; align-items: flex-start; position: relative; }
+  .brand > div:last-child { margin-top: 50px; min-width: 0; }
+  .logo { width: 88px; height: 88px; border-radius: 22px; border: 4px solid var(--bg); background: var(--accent);
+          color: #fff; display: grid; place-items: center; font-size: 2rem; font-weight: 800; overflow: hidden; flex: none; }
+  .logo img { width: 100%; height: 100%; object-fit: cover; }
+  .brand h1 { margin: 0 0 4px; font-size: 1.5rem; line-height: 1.15; }
+  .brand p { margin: 0 0 6px; color: var(--muted); font-size: .92rem; }
+  .info { max-width: 760px; margin: 14px auto 0; padding: 0 16px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .info a, .info span { display: inline-flex; align-items: center; gap: 6px; text-decoration: none; color: var(--ink);
+          background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 7px 14px; font-size: .88rem; }
+  .info a:hover { border-color: var(--accent); }
+
+  /* ---------- Sticky bar ---------- */
+  .bar { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--bg) 92%, transparent);
+         backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); margin-top: 14px; }
+  .bar-in { max-width: 760px; margin: 0 auto; padding: 10px 16px 8px; }
+  .search-row { display: flex; gap: 8px; }
+  .search-row input { flex: 1; min-width: 0; padding: 11px 14px; border-radius: 12px; border: 1px solid var(--line);
+                      background: var(--surface); color: var(--ink); font-size: 1rem; }
+  .chip { border: 1px solid var(--line); background: var(--surface); color: var(--ink); padding: 8px 14px;
+          border-radius: 12px; font-size: .88rem; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; }
+  .chip[aria-pressed="true"] { background: var(--veg); border-color: var(--veg); color: #fff; }
+  .diet { display: flex; gap: 8px; margin-top: 8px; }
+  .diet button { flex: 1; display: inline-flex; justify-content: center; align-items: center; gap: 7px; padding: 8px 10px;
+         border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); font-weight: 650; font-size: .9rem; }
+  .diet button[aria-pressed="true"] { background: var(--primary); border-color: var(--primary); color: #fff; }
+  .diet button[aria-pressed="true"] .dot { background: #fff; border-color: currentColor; }
+  .tabs { display: flex; gap: 14px; overflow-x: auto; margin-top: 10px; padding: 2px 2px 6px; scrollbar-width: none; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tabs a { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 62px; text-decoration: none;
+            color: var(--muted); font-size: .72rem; font-weight: 700; white-space: nowrap; }
+  .tabs a .ic { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; font-size: 1.5rem;
+                border: 2px solid transparent; transition: transform .15s; }
+  .tabs a.on { color: var(--ink); }
+  .tabs a.on .ic { border-color: var(--accent); transform: scale(1.1); box-shadow: 0 4px 12px rgba(0,0,0,.15); }
+
+  /* ---------- Menu ---------- */
+  main { max-width: 760px; margin: 0 auto; padding: 4px 16px 10px; }
+  h2 { margin: 24px 0 12px; font-size: 1.2rem; scroll-margin-top: 190px; display: flex; align-items: center; gap: 8px; }
+  h2 .hi { font-size: 1.4rem; }
+  .item { display: flex; gap: 14px; align-items: flex-start; background: var(--surface); border: 1px solid var(--line);
+          border-radius: 18px; padding: 14px; margin-bottom: 14px; box-shadow: 0 2px 10px rgba(20,30,50,.05); }
+  .info-col { flex: 1; min-width: 0; }
+  .name { font-weight: 700; font-size: 1.02rem; display: flex; align-items: flex-start; gap: 8px; line-height: 1.25; }
+  .name .dot { margin-top: 2px; }
+  .dot { width: 15px; height: 15px; border: 2px solid; border-radius: 3px; display: inline-grid; place-items: center; flex: none; }
+  .dot::after { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+  .dot.veg { color: var(--veg); } .dot.nonveg { color: var(--nonveg); }
+  .price { font-weight: 800; margin: 6px 0 4px; font-size: 1rem; }
+  .desc { color: var(--muted); font-size: .84rem; }
+  .pic { position: relative; width: 112px; height: 104px; margin-bottom: 14px; border-radius: 16px; flex: none;
+         background: linear-gradient(145deg, var(--g1), var(--g2)); display: grid; place-items: center; }
+  .pic .em { font-size: 3.2rem; filter: drop-shadow(0 4px 6px rgba(0,0,0,.18)); }
+  .pic img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 16px; }
+  .pic [data-ctl] { display: contents; }
+  .add { border: 1.5px solid var(--accent); color: var(--accent); background: var(--surface); padding: 6px 24px;
+         border-radius: 10px; font-weight: 800; letter-spacing: .3px; }
+  .qty { display: inline-flex; align-items: center; gap: 4px; background: var(--accent); color: #fff; border-radius: 10px; padding: 2px; }
+  .qty button { width: 32px; height: 30px; border: 0; background: transparent; color: #fff; font-size: 1.2rem; font-weight: 700; }
+  .qty b { min-width: 22px; text-align: center; }
+  .pic .add, .pic .qty { position: absolute; left: 50%; bottom: -14px; transform: translateX(-50%); box-shadow: 0 6px 14px rgba(0,0,0,.22); }
+  .mini { font-size: 1.3rem; }
+  footer { max-width: 760px; margin: 0 auto; padding: 8px 16px 150px; text-align: center; color: var(--muted); font-size: .85rem; }
+  footer a { color: var(--ink); font-weight: 600; text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+  .msg { text-align: center; color: var(--muted); padding: 48px 10px; }
+
+  /* ---------- Cart bar + sheet ---------- */
+  #cartbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
+             display: none; }
+  #cartbar button { width: 100%; max-width: 728px; margin: 0 auto; display: flex; justify-content: space-between;
+             padding: 15px 18px; border: 0; border-radius: 14px; background: var(--accent); color: #fff;
+             font-weight: 700; font-size: 1rem; box-shadow: 0 8px 24px rgba(0,0,0,.25); }
+  #backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 30; display: none; }
+  #sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; max-height: 90vh; overflow-y: auto; display: none;
+           background: var(--surface); border-radius: 22px 22px 0 0; padding: 18px 18px calc(18px + env(safe-area-inset-bottom, 0px));
+           max-width: 760px; margin: 0 auto; }
+  body.open #backdrop, body.open #sheet { display: block; }
+  .sh-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .sh-head h3 { margin: 0; font-size: 1.2rem; }
+  .x { border: 0; background: var(--bg); color: var(--ink); width: 34px; height: 34px; border-radius: 50%; font-size: 1.1rem; }
+  .line { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .line .nm { flex: 1; min-width: 0; font-size: .95rem; }
+  .line .amt { min-width: 70px; text-align: right; font-weight: 650; }
+  .bill { margin: 12px 0; font-size: .95rem; }
+  .bill div { display: flex; justify-content: space-between; padding: 3px 0; color: var(--muted); }
+  .bill .tot { color: var(--ink); font-weight: 800; font-size: 1.15rem; border-top: 1px dashed var(--line); margin-top: 6px; padding-top: 8px; }
+  .seg { display: flex; gap: 8px; margin: 12px 0 8px; }
+  .seg button { flex: 1; padding: 10px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); font-weight: 600; }
+  .seg button[aria-pressed="true"] { border-color: var(--primary); background: var(--primary); color: #fff; }
+  .field { margin: 8px 0; }
+  .field label { display: block; font-size: .82rem; color: var(--muted); margin-bottom: 4px; }
+  .field input, .field textarea { width: 100%; padding: 11px 12px; border-radius: 10px; border: 1px solid var(--line);
+         background: var(--bg); color: var(--ink); font: inherit; }
+  .err { color: var(--nonveg); font-size: .85rem; margin: 4px 0 0; min-height: 1.1em; }
+  #send { width: 100%; margin-top: 10px; padding: 15px; border: 0; border-radius: 14px; background: #1faa59; color: #fff; font-weight: 800; font-size: 1.02rem; }
+  .fine { text-align: center; color: var(--muted); font-size: .78rem; margin: 8px 0 0; }
+</style>
+</head>
+<body>
+
+<div class="banner" id="banner"><span class="tablepill" id="tablePill" hidden></span></div>
+<div class="brand">
+  <div class="logo" id="logo"></div>
+  <div><h1 id="rName"></h1><p id="rTag"></p></div>
+</div>
+<div class="info" id="infoRow"></div>
+
+<div class="bar">
+  <div class="bar-in">
+    <div class="search-row">
+      <input id="q" type="search" placeholder="Search dishes" aria-label="Search dishes">
+      </div>
+    <div class="diet" id="diet" role="group" aria-label="Food type">
+      <button data-diet="all" aria-pressed="true">All</button>
+      <button data-diet="veg" aria-pressed="false"><span class="dot veg"></span>Veg</button>
+      <button data-diet="nonveg" aria-pressed="false"><span class="dot nonveg"></span>Non-veg</button>
+    </div>
+    <nav class="tabs" id="tabs" aria-label="Menu sections"></nav>
+  </div>
+</div>
+
+<main id="menu"><div class="msg">Loading menu...</div></main>
+<footer id="credit"></footer>
+
+<div id="cartbar"><button id="openCart"></button></div>
+<div id="backdrop"></div>
+<section id="sheet" role="dialog" aria-modal="true" aria-label="Your order"></section>
+
+<script>
+/* ================= CLIENT SETTINGS: sirf yahan badlo ================= */
+const CONFIG = {
+  name: "Spice Garden",
+  tagline: "Multi-cuisine family restaurant",
+  logo: "",                // client ka logo: "logo.png" ya image link. Khali = built-in sample logo
+  banner: "",              // client ka banner: "banner.jpg" ya image link. Khali = built-in sample banner
+  phone: "+91 90453 90712",
+  address: "12, Main Market Road, Rampur, Uttar Pradesh 244901",
+  hours: "11:00 AM - 11:00 PM",
+  developer: "Automatex AI",
+  developerEmail: "automatexai.support@gmail.com",
+  whatsapp: "919045390712",      // country code ke saath, bina + ke
+  currency: "₹",
+  primaryColor: "#1d3557",       // brand colour
+  accentColor: "#e63946",        // buttons ka colour
+
+  gst: {
+    enabled: true,               // false = bill mein GST nahi dikhega
+    percent: 5,                  // GST %
+    mode: "extra",               // "extra" = prices ke upar GST judega | "included" = prices mein GST shamil hai
+    split: true,                 // true = CGST + SGST alag dikhao
+    number: ""                   // GSTIN (optional), message mein jayega
+  },
+  requireTable: true,            // dine-in order mein table no zaroori
+  sheetCsvUrl: ""                // Google Sheet CSV link. Khali = SAMPLE data
+};
+/* Sheet columns: category, name, price, veg, description, image, available */
+
+const SAMPLE = `category,name,price,veg,description,image,available
+Starters,Paneer Tikka,260,veg,Smoky tandoor-grilled paneer with mint chutney,,yes
+Starters,Veg Spring Roll,180,veg,Crisp rolls with sweet chilli dip,,yes
+Starters,Hara Bhara Kebab,200,veg,Spinach and green pea kebabs,,yes
+Starters,Chicken Malai Tikka,320,nonveg,Creamy marinated chicken from the tandoor,,yes
+Starters,Chicken Seekh Kebab,300,nonveg,Minced chicken skewers with spices,,yes
+Starters,Fish Amritsari,360,nonveg,Gram-flour battered crisp fried fish,,yes
+Starters,Chicken 65,280,nonveg,Spicy South-Indian style fried chicken,,yes
+Main Course,Dal Makhani,240,veg,Slow-cooked black lentils with butter,,yes
+Main Course,Shahi Paneer,280,veg,Paneer in rich creamy cashew gravy,,yes
+Main Course,Kadhai Paneer,290,veg,Peppers and paneer in kadhai masala,,yes
+Main Course,Butter Chicken,350,nonveg,Classic tomato-butter gravy,,yes
+Main Course,Chicken Curry,330,nonveg,Home-style onion tomato gravy,,yes
+Main Course,Mutton Rogan Josh,420,nonveg,Kashmiri-style slow-cooked mutton,,yes
+Main Course,Egg Curry,200,nonveg,Boiled eggs in spiced masala,,yes
+Breads,Butter Naan,50,veg,Soft tandoor naan brushed with butter,,yes
+Rice,Veg Biryani,230,veg,Fragrant basmati with vegetables,,yes
+Rice,Chicken Biryani,300,nonveg,Dum-cooked and served with raita,,yes
+Rice,Mutton Biryani,380,nonveg,Slow-cooked mutton layered with basmati,,yes
+Desserts,Gulab Jamun (2 pc),90,veg,Warm dumplings in sugar syrup,,yes
+Drinks,Masala Chaas,60,veg,Spiced buttermilk,,yes`;
+
+/* ================= APP ================= */
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const r2 = n => Math.round(n * 100) / 100;
+const money = n => CONFIG.currency + (Number.isInteger(n) ? n : n.toFixed(2));
+
+let items = [], cart = {}, diet = "all", term = "", orderType = "dine";
+const params = new URLSearchParams(location.search);
+let tableNo = (params.get("table") || "").replace(/[^\w-]/g, "").slice(0, 8);
+let custName = "", custNote = "";
+
+/* ---- Theme + header ---- */
+document.documentElement.style.setProperty("--primary", CONFIG.primaryColor);
+document.documentElement.style.setProperty("--accent", CONFIG.accentColor);
+document.title = CONFIG.name + " | Menu";
+$("#rName").textContent = CONFIG.name;
+$("#rTag").textContent = CONFIG.tagline;
+
+/* Built-in sample logo/banner (alag file upload karne ki zarurat nahi) */
+const DEFAULT_LOGO = "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20256%20256%22%20width%3D%22256%22%20height%3D%22256%22%20xmlns%3Ac2pa%3D%22http%3A%2F%2Fc2pa.org%2Fmanifest%22%3E%3Cmetadata%3E%3Cc2pa%3Amanifest%3EAAAWgmp1bWIAAAAeanVtZGMycGEAEQAQgAAAqgA4m3EDYzJwYQAAABZcanVtYgAAAEdqdW1kYzJtYQARABCAAACqADibcQN1cm46YzJwYTphNjFhOWIyZi02YzQzLTRhNDktYWVjNS0wOWU5YjEyZDQ4YzkAAAADl2p1bWIAAAApanVtZGMyYXMAEQAQgAAAqgA4m3EDYzJwYS5hc3NlcnRpb25zAAAAALxqdW1iAAAARGp1bWRjYm9yABEAEIAAAKoAOJtxE2MycGEuaW5ncmVkaWVudC52MwAAAAAYYzJzaL0a9rbsGvxtkXfdgl5zMF4AAABwY2JvcqNpZGM6Zm9ybWF0bWltYWdlL3N2Zyt4bWxqaW5zdGFuY2VJRHgseG1wOmlpZDpiZTk0ODQ2NC00NTc1LTRhMzctYjkwNC05ZThhNTY1ZGIyMDJscmVsYXRpb25zaGlwaHBhcmVudE9mAAAB4mp1bWIAAABBanVtZGNib3IAEQAQgAAAqgA4m3ETYzJwYS5hY3Rpb25zLnYyAAAAABhjMnNo3Jou0MrH%2FJF6Ahx8lF%2BfNQAAAZljYm9yomdhY3Rpb25zgqJmYWN0aW9ua2MycGEub3BlbmVkanBhcmFtZXRlcnOha2luZ3JlZGllbnRzgaJjdXJseC1zZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmluZ3JlZGllbnQudjNkaGFzaFggzSjuhLUvwcRpjZQCiEPPTgL3X19kwHlQWnNfnc2gOZakZmFjdGlvbngdY29tLmFudGhyb3BpYy5jbGF1ZGUucHJvdmlkZWRqcGFyYW1ldGVyc6F4H2NvbS5hbnRocm9waWMub3JpZ2luLWNvbmZpZGVuY2VndW5rbm93bmtkZXNjcmlwdGlvbnhmQ2xhdWRlIHByb3ZpZGVkIHRoaXMgZmlsZSBhdCB0aGUgcmVxdWVzdCBvZiBhIHVzZXIgYW5kIG1heSBoYXZlIGNyZWF0ZWQgb3IgbW9kaWZpZWQgdGhlIGZpbGUgY29udGVudHMubXNvZnR3YXJlQWdlbnShZG5hbWVmQ2xhdWRlcmFsbEFjdGlvbnNJbmNsdWRlZPUAAADIanVtYgAAAEBqdW1kY2JvcgARABCAAACqADibcRNjMnBhLmhhc2guZGF0YQAAAAAYYzJzaG6zZtksTolPI0rmldC34twAAACAY2JvcqVjYWxnZnNoYTI1NmNwYWRNAAAAAAAAAAAAAAAAAGRoYXNoWCDjma47Gt498ASZA2pbycVDL6rhkauIEOsJ9LhGK9w5uWRuYW1lbmp1bWJmIG1hbmlmZXN0amV4Y2x1c2lvbnOBomVzdGFydBiWZmxlbmd0aBkeBAAAAj5qdW1iAAAAJ2p1bWRjMmNsABEAEIAAAKoAOJtxA2MycGEuY2xhaW0udjIAAAACD2Nib3KlY2FsZ2ZzaGEyNTZpc2lnbmF0dXJleE1zZWxmI2p1bWJmPS9jMnBhL3VybjpjMnBhOmE2MWE5YjJmLTZjNDMtNGE0OS1hZWM1LTA5ZTliMTJkNDhjOS9jMnBhLnNpZ25hdHVyZWppbnN0YW5jZUlEeCx4bXA6aWlkOjMyMjNmNGIzLTI4ZjYtNDk3ZS1iMmQwLTEwMWViZmE1MTBkOXJjcmVhdGVkX2Fzc2VydGlvbnODomN1cmx4LXNlbGYjanVtYmY9YzJwYS5hc3NlcnRpb25zL2MycGEuaW5ncmVkaWVudC52M2RoYXNoWCDNKO6EtS%2FBxGmNlAKIQ89OAvdfX2TAeVBac1%2BdzaA5lqJjdXJseCpzZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmFjdGlvbnMudjJkaGFzaFggJN5rT2X72iHemTWsHWEe5h%2BlSE4ZAzkM4SCl%2FeyDEDiiY3VybHgpc2VsZiNqdW1iZj1jMnBhLmFzc2VydGlvbnMvYzJwYS5oYXNoLmRhdGFkaGFzaFggPZ4Rae2kRJdV%2BMPjX%2BWFq8Z0sQA7V9bKsKbmmnHQ08d0Y2xhaW1fZ2VuZXJhdG9yX2luZm%2BjZG5hbWVvQW50aHJvcGljIEZpbGVzZ3ZlcnNpb25lMS4wLjBrc3BlY1ZlcnNpb25lMi40LjAAABA4anVtYgAAAChqdW1kYzJjcwARABCAAACqADibcQNjMnBhLnNpZ25hdHVyZQAAABAIY2JvctKEWQISogEmGCFZAgowggIGMIIBjaADAgECAhRA5aAK7sI50L64g%2FoGQgU9Z1UTADAKBggqhkjOPQQDAzBJMRcwFQYDVQQKEw5BbnRocm9waWMsIFBCQzEuMCwGA1UEAxMlQW50aHJvcGljIENvbnRlbnQgQ3JlZGVudGlhbHMgUm9vdCBDQTAeFw0yNjA4MDcxODQzNTZaFw0yODA4MDYxOTQzNTZaMEQxFzAVBgNVBAoTDkFudGhyb3BpYywgUEJDMSkwJwYDVQQDEyBBbnRocm9waWMgQ2xhdWRlIENvbnRlbnQgU2lnbmluZzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJh6CmvLUBgFFNU0vUKlOVtE6djd17L5SuwX0LemFisBM3dkd%2F3cyjxFA3Qo5S46fX0%2FihY0VZ7mfb9KF703t5OjWDBWMA4GA1UdDwEB%2FwQEAwIHgDAVBgNVHSUEDjAMBgorBgEEAYPoXgIBMAwGA1UdEwEB%2FwQCMAAwHwYDVR0jBBgwFoAUzlHiBIFOZFsj%2BOPEz5o%2BnMHXXMIwCgYIKoZIzj0EAwMDZwAwZAIwMXMdFJ4BetLLVY7ORuE9noqbbAZOZn%2FaArXyTwFAZfKrPzxF2vPoJNf1%2BUCdg1XGAjBwX1zd9WGqYkqmL5SFqw1QySjr1zJfpJM9%2B1rdDwSPLMOPOjKuiXjoU%2FpUUeG9RwmhY3BhZFkNngAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPZYQML8Uejb4ytviYk4%2BYAcvoA9nppleKv9G3xhWPcZDjvmUykcMAQCL9GiQkxrsYBVCafSWz%2FE5hiodAJs5dUDzMQ%3D%3C%2Fc2pa%3Amanifest%3E%3C%2Fmetadata%3E%20%3Crect%20width%3D%22256%22%20height%3D%22256%22%20fill%3D%22%23e63946%22%2F%3E%20%3Ccircle%20cx%3D%22128%22%20cy%3D%22128%22%20r%3D%22104%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-opacity%3D%22.35%22%20stroke-width%3D%224%22%2F%3E%20%3C%21--%20steam%20--%3E%20%3Cpath%20d%3D%22M100%2092c-10-14%2010-22%200-38M128%2092c-10-14%2010-22%200-38M156%2092c-10-14%2010-22%200-38%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%2F%3E%20%3C%21--%20bowl%20--%3E%20%3Cpath%20d%3D%22M52%20112h152c0%2046-30%2080-76%2080s-76-34-76-80z%22%20fill%3D%22%23fff%22%2F%3E%20%3Crect%20x%3D%2286%22%20y%3D%22196%22%20width%3D%2284%22%20height%3D%2212%22%20rx%3D%226%22%20fill%3D%22%23fff%22%2F%3E%20%3C%21--%20leaf%20--%3E%20%3Cpath%20d%3D%22M128%20112c-22%200-38-12-42-34%2024-2%2040%2010%2042%2034z%22%20fill%3D%22%231d3557%22%2F%3E%20%3Cpath%20d%3D%22M128%20112c22%200%2038-12%2042-34-24-2-40%2010-42%2034z%22%20fill%3D%22%231d3557%22%20opacity%3D%22.75%22%2F%3E%20%3C%2Fsvg%3E";
+const DEFAULT_BANNER = "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%201600%20400%22%20preserveAspectRatio%3D%22xMidYMid%20slice%22%20xmlns%3Ac2pa%3D%22http%3A%2F%2Fc2pa.org%2Fmanifest%22%3E%3Cmetadata%3E%3Cc2pa%3Amanifest%3EAAAWgmp1bWIAAAAeanVtZGMycGEAEQAQgAAAqgA4m3EDYzJwYQAAABZcanVtYgAAAEdqdW1kYzJtYQARABCAAACqADibcQN1cm46YzJwYTplMjE1ZmFjZC0xMTEzLTQ4NTUtOWEwOS1lMGEyNzczZjcyNWMAAAADl2p1bWIAAAApanVtZGMyYXMAEQAQgAAAqgA4m3EDYzJwYS5hc3NlcnRpb25zAAAAALxqdW1iAAAARGp1bWRjYm9yABEAEIAAAKoAOJtxE2MycGEuaW5ncmVkaWVudC52MwAAAAAYYzJzaPaLCazqQH70iJQyAIH9lG0AAABwY2JvcqNpZGM6Zm9ybWF0bWltYWdlL3N2Zyt4bWxqaW5zdGFuY2VJRHgseG1wOmlpZDo1MjQ1YmY4OS04MWM0LTQyYzgtOTE5MC1mMjBlNDc1MWU4M2ZscmVsYXRpb25zaGlwaHBhcmVudE9mAAAB4mp1bWIAAABBanVtZGNib3IAEQAQgAAAqgA4m3ETYzJwYS5hY3Rpb25zLnYyAAAAABhjMnNoL2VgDmVSMKxnZc9ItTrDewAAAZljYm9yomdhY3Rpb25zgqJmYWN0aW9ua2MycGEub3BlbmVkanBhcmFtZXRlcnOha2luZ3JlZGllbnRzgaJjdXJseC1zZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmluZ3JlZGllbnQudjNkaGFzaFggt%2BsZM5gKVmLL7Qrg2jbJQgUP1jGThHx69u4xDZetrEykZmFjdGlvbngdY29tLmFudGhyb3BpYy5jbGF1ZGUucHJvdmlkZWRqcGFyYW1ldGVyc6F4H2NvbS5hbnRocm9waWMub3JpZ2luLWNvbmZpZGVuY2VndW5rbm93bmtkZXNjcmlwdGlvbnhmQ2xhdWRlIHByb3ZpZGVkIHRoaXMgZmlsZSBhdCB0aGUgcmVxdWVzdCBvZiBhIHVzZXIgYW5kIG1heSBoYXZlIGNyZWF0ZWQgb3IgbW9kaWZpZWQgdGhlIGZpbGUgY29udGVudHMubXNvZnR3YXJlQWdlbnShZG5hbWVmQ2xhdWRlcmFsbEFjdGlvbnNJbmNsdWRlZPUAAADIanVtYgAAAEBqdW1kY2JvcgARABCAAACqADibcRNjMnBhLmhhc2guZGF0YQAAAAAYYzJzaN2954WJlvGvO0u4KDgfGCMAAACAY2JvcqVjYWxnZnNoYTI1NmNwYWRNAAAAAAAAAAAAAAAAAGRoYXNoWCCgStwtbZYKyIAf6319pd9Jf047FBTdAfk6XWwztsan%2FmRuYW1lbmp1bWJmIG1hbmlmZXN0amV4Y2x1c2lvbnOBomVzdGFydBijZmxlbmd0aBkeBAAAAj5qdW1iAAAAJ2p1bWRjMmNsABEAEIAAAKoAOJtxA2MycGEuY2xhaW0udjIAAAACD2Nib3KlY2FsZ2ZzaGEyNTZpc2lnbmF0dXJleE1zZWxmI2p1bWJmPS9jMnBhL3VybjpjMnBhOmUyMTVmYWNkLTExMTMtNDg1NS05YTA5LWUwYTI3NzNmNzI1Yy9jMnBhLnNpZ25hdHVyZWppbnN0YW5jZUlEeCx4bXA6aWlkOmVlZGIyNTU5LThiNzYtNDcxNC1hYjMwLTliZTFkODI0MWUyYXJjcmVhdGVkX2Fzc2VydGlvbnODomN1cmx4LXNlbGYjanVtYmY9YzJwYS5hc3NlcnRpb25zL2MycGEuaW5ncmVkaWVudC52M2RoYXNoWCC36xkzmApWYsvtCuDaNslCBQ%2FWMZOEfHr27jENl62sTKJjdXJseCpzZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmFjdGlvbnMudjJkaGFzaFggrh8i%2B%2FK3DYSHwadhtUvQb%2BzA4hoo3w9VZB1FXYr7do2iY3VybHgpc2VsZiNqdW1iZj1jMnBhLmFzc2VydGlvbnMvYzJwYS5oYXNoLmRhdGFkaGFzaFggKmPb3bSYJ2R7x53LpC9dUmn6SRPQh97YfHLaaWPWHCB0Y2xhaW1fZ2VuZXJhdG9yX2luZm%2BjZG5hbWVvQW50aHJvcGljIEZpbGVzZ3ZlcnNpb25lMS4wLjBrc3BlY1ZlcnNpb25lMi40LjAAABA4anVtYgAAAChqdW1kYzJjcwARABCAAACqADibcQNjMnBhLnNpZ25hdHVyZQAAABAIY2JvctKEWQISogEmGCFZAgowggIGMIIBjaADAgECAhRA5aAK7sI50L64g%2FoGQgU9Z1UTADAKBggqhkjOPQQDAzBJMRcwFQYDVQQKEw5BbnRocm9waWMsIFBCQzEuMCwGA1UEAxMlQW50aHJvcGljIENvbnRlbnQgQ3JlZGVudGlhbHMgUm9vdCBDQTAeFw0yNjA4MDcxODQzNTZaFw0yODA4MDYxOTQzNTZaMEQxFzAVBgNVBAoTDkFudGhyb3BpYywgUEJDMSkwJwYDVQQDEyBBbnRocm9waWMgQ2xhdWRlIENvbnRlbnQgU2lnbmluZzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJh6CmvLUBgFFNU0vUKlOVtE6djd17L5SuwX0LemFisBM3dkd%2F3cyjxFA3Qo5S46fX0%2FihY0VZ7mfb9KF703t5OjWDBWMA4GA1UdDwEB%2FwQEAwIHgDAVBgNVHSUEDjAMBgorBgEEAYPoXgIBMAwGA1UdEwEB%2FwQCMAAwHwYDVR0jBBgwFoAUzlHiBIFOZFsj%2BOPEz5o%2BnMHXXMIwCgYIKoZIzj0EAwMDZwAwZAIwMXMdFJ4BetLLVY7ORuE9noqbbAZOZn%2FaArXyTwFAZfKrPzxF2vPoJNf1%2BUCdg1XGAjBwX1zd9WGqYkqmL5SFqw1QySjr1zJfpJM9%2B1rdDwSPLMOPOjKuiXjoU%2FpUUeG9RwmhY3BhZFkNngAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPZYQABBsGpr3zGzFJa7DyabE6Yxcm%2Bw64wkqDEYR%2F6REAP%2F1HJseQurWxDQej2HXA4Kzv2sxzYJMI%2FO4yxHikNvk0M%3D%3C%2Fc2pa%3Amanifest%3E%3C%2Fmetadata%3E%20%3Cdefs%3E%20%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%20%3Cstop%20offset%3D%220%22%20stop-color%3D%22%231d3557%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%230d1b30%22%2F%3E%20%3C%2FlinearGradient%3E%20%3C%2Fdefs%3E%20%3Crect%20width%3D%221600%22%20height%3D%22400%22%20fill%3D%22url%28%23g%29%22%2F%3E%20%3Ccircle%20cx%3D%221320%22%20cy%3D%2260%22%20r%3D%22220%22%20fill%3D%22%23fff%22%20opacity%3D%22.06%22%2F%3E%20%3Ccircle%20cx%3D%22200%22%20cy%3D%22380%22%20r%3D%22260%22%20fill%3D%22%23e63946%22%20opacity%3D%22.85%22%2F%3E%20%3Ccircle%20cx%3D%22200%22%20cy%3D%22380%22%20r%3D%22170%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-opacity%3D%22.25%22%20stroke-width%3D%223%22%2F%3E%20%3C%21--%20plate%20center%20--%3E%20%3Ccircle%20cx%3D%22800%22%20cy%3D%22200%22%20r%3D%22150%22%20fill%3D%22%23fff%22%20opacity%3D%22.10%22%2F%3E%20%3Ccircle%20cx%3D%22800%22%20cy%3D%22200%22%20r%3D%22110%22%20fill%3D%22%23fff%22%20opacity%3D%22.12%22%2F%3E%20%3C%21--%20chilli%20--%3E%20%3Cpath%20d%3D%22M1040%20120c60-30%20140-10%20170%2050-60-10-120%2010-170-50z%22%20fill%3D%22%23e63946%22%2F%3E%20%3Cpath%20d%3D%22M1040%20120c-6-14-4-26%2010-38%22%20fill%3D%22none%22%20stroke%3D%22%232a9d5c%22%20stroke-width%3D%2210%22%20stroke-linecap%3D%22round%22%2F%3E%20%3C%21--%20leaves%20--%3E%20%3Cpath%20d%3D%22M520%2090c60-10%20100%2020%20110%2070-60%2010-100-20-110-70z%22%20fill%3D%22%232a9d5c%22%2F%3E%20%3Cpath%20d%3D%22M470%20250c50-30%20110-14%20140%2036-56%2018-110%202-140-36z%22%20fill%3D%22%232a9d5c%22%20opacity%3D%22.7%22%2F%3E%20%3Cpath%20d%3D%22M1280%20270c40-40%20100-40%20130%200-40%2040-100%2040-130%200z%22%20fill%3D%22%232a9d5c%22%20opacity%3D%22.8%22%2F%3E%20%3C%21--%20spice%20dots%20--%3E%20%3Cg%20fill%3D%22%23f4a261%22%3E%20%3Ccircle%20cx%3D%22700%22%20cy%3D%2270%22%20r%3D%229%22%2F%3E%3Ccircle%20cx%3D%22930%22%20cy%3D%22330%22%20r%3D%2211%22%2F%3E%3Ccircle%20cx%3D%221120%22%20cy%3D%22300%22%20r%3D%228%22%2F%3E%20%3Ccircle%20cx%3D%22380%22%20cy%3D%22120%22%20r%3D%228%22%2F%3E%3Ccircle%20cx%3D%22640%22%20cy%3D%22340%22%20r%3D%2210%22%2F%3E%3Ccircle%20cx%3D%221480%22%20cy%3D%22150%22%20r%3D%229%22%2F%3E%20%3C%2Fg%3E%20%3C%2Fsvg%3E";
+const initials = CONFIG.name.split(/\s+/).map(w => w[0]).join("").slice(0, 2).toUpperCase();
+
+const banner = $("#banner");
+function setBanner(src) { banner.style.backgroundImage = `url("${src}")`; }
+setBanner(DEFAULT_BANNER);
+if (CONFIG.banner) {
+  const t = new Image();
+  t.onload = () => setBanner(CONFIG.banner);   // client ka banner mile tabhi lagao
+  t.src = CONFIG.banner;
+}
+
+const logo = $("#logo");
+const logoImg = new Image();
+logoImg.alt = CONFIG.name + " logo";
+let triedDefault = !CONFIG.logo;
+logoImg.onerror = () => { if (!triedDefault) { triedDefault = true; logoImg.src = DEFAULT_LOGO; } else { logoImg.remove(); logo.textContent = initials; } };
+/* ---- Home screen icon + app manifest (logo se apne aap banta hai) ---- */
+function setLink(rel, href, extra) {
+  let l = document.querySelector(`link[rel="${rel}"]`);
+  if (!l) { l = document.createElement("link"); l.rel = rel; document.head.appendChild(l); }
+  l.href = href; if (extra) l.type = extra;
+}
+function setupApp(img) {
+  try {
+    const mk = n => {
+      const c = document.createElement("canvas"); c.width = c.height = n;
+      const x = c.getContext("2d");
+      x.fillStyle = CONFIG.accentColor; x.fillRect(0, 0, n, n);
+      x.drawImage(img, 0, 0, n, n);
+      return c.toDataURL("image/png");
+    };
+    const i192 = mk(192), i512 = mk(512);
+    setLink("icon", i192, "image/png");
+    setLink("apple-touch-icon", mk(180));
+    let t = document.querySelector('meta[name="theme-color"]'); if (t) t.content = CONFIG.primaryColor;
+    let a = document.querySelector('meta[name="apple-mobile-web-app-title"]');
+    if (!a) { a = document.createElement("meta"); a.name = "apple-mobile-web-app-title"; document.head.appendChild(a); }
+    a.content = CONFIG.name;
+    const manifest = {
+      name: CONFIG.name + " Menu", short_name: CONFIG.name,
+      start_url: location.origin + location.pathname, scope: location.origin + "/",
+      display: "standalone", background_color: "#f5f6f8", theme_color: CONFIG.primaryColor,
+      icons: [{ src: i192, sizes: "192x192", type: "image/png", purpose: "any" },
+              { src: i512, sizes: "512x512", type: "image/png", purpose: "any" }]
+    };
+    setLink("manifest", URL.createObjectURL(new Blob([JSON.stringify(manifest)], { type: "application/manifest+json" })));
+  } catch (e) { /* icon na bane to bhi menu chalega */ }
+}
+document.getElementById("favicon").href = DEFAULT_LOGO;
+logoImg.onload = () => setupApp(logoImg);
+logoImg.src = CONFIG.logo || DEFAULT_LOGO;
+logo.appendChild(logoImg);
+
+$("#credit").innerHTML = `Developed by <b>${esc(CONFIG.developer)}</b><br><a href="mailto:${esc(CONFIG.developerEmail)}">${esc(CONFIG.developerEmail)}</a>`;
+
+if (tableNo) { const p = $("#tablePill"); p.hidden = false; p.textContent = "Table " + tableNo; }
+
+const tel = CONFIG.phone.replace(/[^\d+]/g, "");
+const maps = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(CONFIG.name + " " + CONFIG.address);
+$("#infoRow").innerHTML =
+  (CONFIG.phone ? `<a href="tel:${esc(tel)}">📞 ${esc(CONFIG.phone)}</a>` : "") +
+  (CONFIG.address ? `<a href="${maps}" target="_blank" rel="noopener">📍 ${esc(CONFIG.address)}</a>` : "") +
+  (CONFIG.hours ? `<span>🕒 ${esc(CONFIG.hours)}</span>` : "");
+
+/* ---- CSV ---- */
+function parseCSV(text) {
+  const rows = []; let row = [], cell = "", inQ = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQ) {
+      if (c === '"' && text[i + 1] === '"') { cell += '"'; i++; }
+      else if (c === '"') inQ = false; else cell += c;
+    } else if (c === '"') inQ = true;
+    else if (c === ",") { row.push(cell); cell = ""; }
+    else if (c === "\n" || c === "\r") {
+      if (c === "\r" && text[i + 1] === "\n") i++;
+      row.push(cell); cell = ""; rows.push(row); row = [];
+    } else cell += c;
+  }
+  if (cell || row.length) { row.push(cell); rows.push(row); }
+  const head = rows.shift().map(h => h.trim().toLowerCase());
+  return rows.filter(r => r.some(x => x.trim()))
+             .map(r => Object.fromEntries(head.map((h, i) => [h, (r[i] || "").trim()])));
+}
+
+async function load() {
+  let text = SAMPLE;
+  if (CONFIG.sheetCsvUrl) {
+    try {
+      const res = await fetch(CONFIG.sheetCsvUrl, { cache: "no-store" });
+      if (!res.ok) throw new Error(res.status);
+      text = await res.text();
+    } catch (e) {
+      $("#menu").innerHTML = '<div class="msg">Menu load nahi ho paya. Thodi der baad try karein.</div>';
+      return;
+    }
+  }
+  items = parseCSV(text).filter(r => r.name && (r.available || "yes").toLowerCase() !== "no")
+    .map((r, i) => ({ id: i, category: r.category || "Menu", name: r.name, price: Number(r.price) || 0,
+      veg: (r.veg || "").toLowerCase().replace(/[^a-z]/g, "") !== "nonveg", desc: r.description || "", img: r.image || "" }));
+  render();
+}
+
+/* ---- Menu render ---- */
+/* ---- Dish images (emoji illustrations) + category icons ---- */
+const GRADS = [["#ffd9d2","#ffb3a3"],["#d5f2de","#a3e0b8"],["#ffeab3","#ffd073"],["#d6e4ff","#a9c5ff"],["#ecd9ff","#d1adff"],["#c9f1ec","#8fdfd3"]];
+const TINTS = ["#ffe0dc","#dcf3e4","#fff0c2","#dde8ff","#efe0ff","#d3f3ee"];
+const hash = str => [...str].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7);
+const DISH_EMOJI = [
+  [/biryani|pulao/i,"🍛"],[/ice ?cream|kulfi/i,"🍨"],[/gulab|jamun|rasgulla|kheer|halwa|sweet|brownie|cake/i,"🍮"],
+  [/tikka|kebab|seekh|tandoori|tangdi/i,"🍢"],[/prawn|shrimp/i,"🍤"],[/fish|amritsari|seafood/i,"🐟"],
+  [/mutton|lamb|rogan|keema|gosht/i,"🍖"],[/chicken|butter chicken|65/i,"🍗"],[/egg|anda|omelette/i,"🥚"],
+  [/paneer|cheese/i,"🧀"],[/dal|lentil|rajma|chole|sambar/i,"🥣"],[/naan|roti|paratha|kulcha|bread/i,"🥙"],
+  [/rice|jeera|khichdi/i,"🍚"],[/chai|tea|coffee/i,"☕"],[/chaas|lassi|soda|juice|shake|lime|cola|water|drink/i,"🥤"],
+  [/roll|wrap|burger|sandwich/i,"🌯"],[/pizza/i,"🍕"],[/pasta|noodle|chowmein|manchurian/i,"🍜"],[/momo/i,"🥟"],
+  [/soup/i,"🍲"],[/fries|chips|pakora/i,"🍟"],[/salad|veg|sabzi|sabji/i,"🥗"]
+];
+const CAT_EMOJI = [[/starter|snack|appetiz/i,"🍢"],[/main|curry|gravy/i,"🍛"],[/bread|roti|naan/i,"🥙"],[/rice|biryani/i,"🍚"],
+  [/dessert|sweet/i,"🍮"],[/drink|beverage|juice|shake/i,"🥤"],[/soup/i,"🍲"],[/pizza|burger|fast/i,"🍕"]];
+function emojiFor(i) {
+  for (const [re, e] of DISH_EMOJI) if (re.test(i.name)) return e;
+  for (const [re, e] of CAT_EMOJI) if (re.test(i.category)) return e;
+  return "🍽️";
+}
+function catEmoji(c) { for (const [re, e] of CAT_EMOJI) if (re.test(c)) return e; return "🍽️"; }
+
+const ctl = id => cart[id]
+  ? `<span class="qty"><button data-act="dec" data-id="${id}" aria-label="Remove one">−</button><b>${cart[id]}</b><button data-act="inc" data-id="${id}" aria-label="Add one">+</button></span>`
+  : `<button class="add" data-act="inc" data-id="${id}">Add</button>`;
+
+function card(i) {
+  const [g1, g2] = GRADS[hash(i.name) % GRADS.length];
+  return `<div class="item">
+    <div class="info-col">
+      <div class="name"><span class="dot ${i.veg ? "veg" : "nonveg"}" title="${i.veg ? "Veg" : "Non-veg"}"></span><span>${esc(i.name)}</span></div>
+      <div class="price">${money(i.price)}</div>
+      ${i.desc ? `<div class="desc">${esc(i.desc)}</div>` : ""}
+    </div>
+    <div class="pic" style="--g1:${g1};--g2:${g2}">
+      <span class="em" aria-hidden="true">${emojiFor(i)}</span>
+      ${i.img ? `<img src="${esc(i.img)}" alt="${esc(i.name)}" loading="lazy" onerror="this.remove()">` : ""}
+      <span data-ctl="${i.id}">${ctl(i.id)}</span>
+    </div></div>`;
+}
+
+let spy;
+function render() {
+  const list = items.filter(i => (diet === "all" || (diet === "veg") === i.veg) && (!term || (i.name + " " + i.desc).toLowerCase().includes(term)));
+  const cats = [...new Set(list.map(i => i.category))];
+  $("#tabs").innerHTML = cats.map((c, n) => `<a href="#cat${n}" data-tab="cat${n}"><span class="ic" style="background:${TINTS[n % TINTS.length]}">${catEmoji(c)}</span>${esc(c)}</a>`).join("");
+  $("#menu").innerHTML = list.length
+    ? cats.map((c, n) => `<section><h2 id="cat${n}"><span class="hi">${catEmoji(c)}</span>${esc(c)}</h2>${list.filter(i => i.category === c).map(card).join("")}</section>`).join("")
+    : '<div class="msg">Koi dish nahi mili.</div>';
+  if (spy) spy.disconnect();
+  spy = new IntersectionObserver(es => es.forEach(e => {
+    if (e.isIntersecting) {
+      document.querySelectorAll(".tabs a").forEach(a => a.classList.toggle("on", a.dataset.tab === e.target.id));
+      const on = document.querySelector(".tabs a.on"); if (on) on.scrollIntoView({ inline: "center", block: "nearest" });
+    }
+  }), { rootMargin: "-200px 0px -70% 0px" });
+  document.querySelectorAll("h2").forEach(h => spy.observe(h));
+  refreshCartBar();
+}
+
+/* ---- Cart + bill ---- */
+function bill() {
+  const ids = Object.keys(cart);
+  const sub = r2(ids.reduce((s, id) => s + cart[id] * items[id].price, 0));
+  const g = CONFIG.gst, p = g.enabled ? g.percent : 0;
+  let gst = 0, total = sub;
+  if (p) {
+    if (g.mode === "included") gst = r2(sub - sub / (1 + p / 100));
+    else { gst = r2(sub * p / 100); total = r2(sub + gst); }
+  }
+  const count = ids.reduce((s, id) => s + cart[id], 0);
+  return { ids, sub, gst, total, count, p };
+}
+
+function chg(id, d) {
+  cart[id] = Math.max(0, (cart[id] || 0) + d);
+  if (!cart[id]) delete cart[id];
+  document.querySelectorAll(`[data-ctl="${id}"]`).forEach(el => el.innerHTML = ctl(id));
+  refreshCartBar();
+  if (document.body.classList.contains("open")) drawSheet();
+}
+
+function refreshCartBar() {
+  const b = bill();
+  $("#cartbar").style.display = b.count ? "block" : "none";
+  $("#openCart").innerHTML = `<span>${b.count} item${b.count > 1 ? "s" : ""} | ${money(b.total)}</span><span>View order</span>`;
+  if (!b.count) closeSheet();
+}
+
+function billRows(b) {
+  const g = CONFIG.gst, inc = g.mode === "included";
+  let h = `<div><span>Subtotal</span><span>${money(b.sub)}</span></div>`;
+  if (b.p) {
+    const half = r2(b.gst / 2), hp = b.p / 2;
+    h += g.split
+      ? `<div><span>CGST ${hp}%${inc ? " (incl.)" : ""}</span><span>${money(half)}</span></div><div><span>SGST ${hp}%${inc ? " (incl.)" : ""}</span><span>${money(r2(b.gst - half))}</span></div>`
+      : `<div><span>GST ${b.p}%${inc ? " (incl.)" : ""}</span><span>${money(b.gst)}</span></div>`;
+  }
+  return h + `<div class="tot"><span>Total</span><span>${money(b.total)}</span></div>`;
+}
+
+function drawSheet() {
+  const b = bill();
+  $("#sheet").innerHTML = `
+    <div class="sh-head"><h3>Your order</h3><button class="x" data-act="close" aria-label="Close">✕</button></div>
+    ${b.ids.map(id => `<div class="line"><span class="mini">${emojiFor(items[id])}</span><span class="dot ${items[id].veg ? "veg" : "nonveg"}"></span>
+      <span class="nm">${esc(items[id].name)}</span>${ctl(id)}<span class="amt">${money(cart[id] * items[id].price)}</span></div>`).join("")}
+    <div class="bill">${billRows(b)}</div>
+    <div class="seg">
+      <button data-act="type" data-t="dine" aria-pressed="${orderType === "dine"}">Dine-in</button>
+      <button data-act="type" data-t="take" aria-pressed="${orderType === "take"}">Takeaway</button>
+    </div>
+    ${orderType === "dine" ? `<div class="field"><label for="tbl">Table number</label>
+      <input id="tbl" inputmode="numeric" maxlength="8" placeholder="e.g. 5" value="${esc(tableNo)}"></div>` : ""}
+    <div class="field"><label for="cname">Your name (optional)</label><input id="cname" value="${esc(custName)}"></div>
+    <div class="field"><label for="cnote">Note for kitchen (optional)</label>
+      <textarea id="cnote" rows="2" placeholder="Less spicy, no onion...">${esc(custNote)}</textarea></div>
+    <p class="err" id="err" role="alert"></p>
+    <button id="send">Send order on WhatsApp</button>
+    <p class="fine">WhatsApp khulega aur order ka message tayyar milega. Bas Send dabayein.</p>`;
+}
+
+function openSheet() { drawSheet(); document.body.classList.add("open"); }
+function closeSheet() { document.body.classList.remove("open"); }
+
+function sendOrder() {
+  tableNo = ($("#tbl")?.value || tableNo).trim();
+  custName = $("#cname").value.trim(); custNote = $("#cnote").value.trim();
+  if (orderType === "dine" && CONFIG.requireTable && !tableNo) {
+    $("#err").textContent = "Table number likhein."; $("#tbl").focus(); return;
+  }
+  const b = bill(), inc = CONFIG.gst.mode === "included";
+  const L = [`*New order | ${CONFIG.name}*`,
+    orderType === "dine" ? `Dine-in${tableNo ? " | Table " + tableNo : ""}` : "Takeaway"];
+  if (custName) L.push("Name: " + custName);
+  L.push("", ...b.ids.map(id => `${cart[id]} x ${items[id].name} = ${money(cart[id] * items[id].price)}`), "");
+  L.push(`Subtotal: ${money(b.sub)}`);
+  if (b.p) L.push(`GST ${b.p}%${inc ? " (incl.)" : ""}: ${money(b.gst)}`);
+  L.push(`*Total: ${money(b.total)}*`);
+  if (custNote) L.push("", "Note: " + custNote);
+  window.open(`https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(L.join("\n"))}`, "_blank");
+}
+
+/* ---- Events ---- */
+document.addEventListener("click", e => {
+  const t = e.target.closest("[data-act]");
+  if (t) {
+    const a = t.dataset.act;
+    if (a === "inc") chg(+t.dataset.id, 1);
+    else if (a === "dec") chg(+t.dataset.id, -1);
+    else if (a === "close") closeSheet();
+    else if (a === "type") { custName = $("#cname")?.value || custName; custNote = $("#cnote")?.value || custNote;
+      tableNo = $("#tbl")?.value ?? tableNo; orderType = t.dataset.t; drawSheet(); }
+  }
+  if (e.target.id === "send") sendOrder();
+  if (e.target.closest("#openCart")) openSheet();
+  if (e.target.id === "backdrop") closeSheet();
+});
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeSheet(); });
+$("#q").oninput = e => { term = e.target.value.trim().toLowerCase(); render(); };
+$("#diet").onclick = e => {
+  const b = e.target.closest("[data-diet]"); if (!b) return;
+  diet = b.dataset.diet;
+  document.querySelectorAll("#diet button").forEach(x => x.setAttribute("aria-pressed", x === b));
+  render();
+};
+
+load();
+</script>
+</body>
+</html>
