@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Table QR Codes</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: "Segoe UI", system-ui, sans-serif; background: #f5f6f8; color: #17202a; }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 16px; }
+  h1 { font-size: 1.4rem; margin: 6px 0 14px; }
+  .panel { background: #fff; border: 1px solid #e3e7ec; border-radius: 14px; padding: 14px; }
+  label { display: block; font-size: .82rem; color: #66707c; margin: 10px 0 4px; }
+  input { width: 100%; padding: 11px 12px; border: 1px solid #e3e7ec; border-radius: 10px; font: inherit; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  button { font: inherit; cursor: pointer; border: 0; border-radius: 12px; padding: 13px 16px; font-weight: 700; }
+  .go { background: #e63946; color: #fff; width: 100%; margin-top: 14px; }
+  .ghost { background: #1d3557; color: #fff; }
+  .small { background: #eef1f5; color: #17202a; padding: 8px 12px; font-size: .85rem; margin-top: 8px; width: 100%; }
+  #grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 14px; margin-top: 16px; }
+  .card { background: #fff; border: 2px solid #1d3557; border-radius: 18px; padding: 18px 14px; text-align: center; page-break-inside: avoid; }
+  .card .rn { font-weight: 800; font-size: 1.1rem; color: #1d3557; }
+  .card .tb { display: inline-block; background: #e63946; color: #fff; font-weight: 800; font-size: 1.3rem; padding: 4px 18px; border-radius: 999px; margin: 8px 0 10px; }
+  .qr { display: flex; justify-content: center; }
+  .qr img, .qr canvas { max-width: 100%; }
+  .hint { font-size: .85rem; margin-top: 10px; font-weight: 600; }
+  .url { font-size: .68rem; color: #66707c; word-break: break-all; margin-top: 4px; }
+  .bar { display: flex; gap: 10px; margin-top: 16px; }
+  .bar button { flex: 1; }
+  .err { color: #c62828; font-size: .9rem; margin-top: 8px; }
+  @media print {
+    body { background: #fff; }
+    .panel, .bar, .small, h1 { display: none !important; }
+    .wrap { padding: 0; max-width: none; }
+    #grid { grid-template-columns: repeat(2, 1fr); gap: 12mm; margin: 0; }
+    .card { border-width: 2px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Table QR Codes</h1>
+  <div class="panel">
+    <label for="base">Menu ka link (is restaurant ka)</label>
+    <input id="base" placeholder="https://automatexaisupport-tech.github.io/spice-garden/karim.html" inputmode="url">
+    <div class="two">
+      <div><label for="rn">Restaurant ka naam</label><input id="rn" value="Spice Garden"></div>
+      <div><label for="cnt">Kitne tables?</label><input id="cnt" type="number" min="1" max="100" value="5" inputmode="numeric"></div>
+    </div>
+    <button class="go" id="make">QR banao</button>
+    <p class="err" id="err"></p>
+  </div>
+  <div class="bar" id="bar" hidden>
+    <button class="ghost" id="print">Print / Save as PDF</button>
+  </div>
+  <div id="grid"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+const $ = s => document.querySelector(s);
+// Agar ye page menu ke saath (Netlify/GitHub Pages pe) upload hai, to link apne aap bhar jata hai
+if (location.protocol.startsWith("http")) $("#base").value = location.origin + location.pathname.replace(/[^/]*$/, "");
+
+function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+
+$("#make").onclick = () => {
+  $("#err").textContent = "";
+  if (typeof QRCode === "undefined") { $("#err").textContent = "QR library load nahi hui. Internet check karke page dobara kholo."; return; }
+  let base = $("#base").value.trim();
+  if (!base) { $("#err").textContent = "Menu ka link likhein."; return; }
+  if (!/^https?:\/\//i.test(base)) base = "https://" + base;
+  base = base.replace(/[?#].*$/, "").replace(/\/+$/, "");
+  const n = Math.min(100, Math.max(1, parseInt($("#cnt").value, 10) || 1));
+  const name = $("#rn").value.trim() || "Our Restaurant";
+
+  const grid = $("#grid"); grid.innerHTML = "";
+  for (let t = 1; t <= n; t++) {
+    const url = /\.html?$/i.test(base) ? `${base}?table=${t}` : `${base}/?table=${t}`;
+    const card = document.createElement("div"); card.className = "card";
+    card.innerHTML = `<div class="rn">${esc(name)}</div><div class="tb">Table ${t}</div>
+      <div class="qr" id="qr${t}"></div>
+      <div class="hint">Scan karo, menu dekho aur order karo</div>
+      <div class="url">${esc(url)}</div>
+      <button class="small" data-t="${t}">Image download (PNG)</button>`;
+    grid.appendChild(card);
+    new QRCode(document.getElementById("qr" + t), { text: url, width: 220, height: 220, correctLevel: QRCode.CorrectLevel.H });
+  }
+  $("#bar").hidden = false;
+};
+
+$("#grid").onclick = e => {
+  const b = e.target.closest("button[data-t]"); if (!b) return;
+  const t = b.dataset.t, c = document.querySelector(`#qr${t} canvas`);
+  if (!c) return;
+  const a = document.createElement("a");
+  a.href = c.toDataURL("image/png"); a.download = `table-${t}-qr.png`; a.click();
+};
+$("#print").onclick = () => window.print();
+</script>
+</body>
+</html>
